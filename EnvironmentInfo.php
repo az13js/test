@@ -4,4 +4,10 @@
  */
 class EnvironmentInfo
 {
+    private $individuals = [];
+
+    public function add($individual)
+    {
+        $this->individuals[] = $individual;
+    }
 }
