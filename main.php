@@ -13,6 +13,7 @@ for ($i = 0; $i < 3; $i++) {
 for ($j = 0; $j < 100; $j++) {
     // 个体有生命活动，这里逐个触发它们
     for ($i = 0; $i < 3; $i++) {
-        $individuals[$i]->action();
+        // 生命活动触发的时候，是根据接收的环境信息来做出行动的，所以要传一个环境信息进去
+        $individuals[$i]->action(new EnvironmentInfo());
     }
 }

@@ -27,9 +27,13 @@ class Individual
 
     /**
      * 生命随时都有活动，比如说句话
+     *
+     * @param EnvironmentInfo $environmentInfo 活动的时候先接收周围环境的信息
      */
-    public function action()
+    public function action($environmentInfo)
     {
         echo 'Hello, world!' . PHP_EOL;
+        echo 'Oh, environment info:' . PHP_EOL;
+        var_dump($environmentInfo);
     }
 }
