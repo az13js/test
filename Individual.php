@@ -10,6 +10,8 @@ class Individual
     private $y;
     /** @var int 生物的类型id */
     private $typeId;
+    /** @var array DNA 编码 */
+    private $dna = [];
 
     /**
      * 生命诞生时，会被赋予一个坐标，和生命的类型
@@ -35,5 +37,15 @@ class Individual
         echo 'Hello, world!' . PHP_EOL;
         echo 'Oh, environment info:' . PHP_EOL;
         var_dump($environmentInfo);
+    }
+
+    /**
+     * 初始化 DNA 数据
+     */
+    private function initDna()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->dna[] = mt_rand(0, 9);
+        }
     }
 }
