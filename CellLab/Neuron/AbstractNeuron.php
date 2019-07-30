@@ -1,5 +1,5 @@
 <?php
-namespace CellLab;
+namespace CellLab\Neuron;
 
 abstract class AbstractNeuron
 {
