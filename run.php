@@ -1,4 +1,6 @@
 <?php
 require_once 'autoload.php';
 
-"aa";
+$f = new CellLab\NeuronFactory();
+$p = $f->createNeuron();
+$p->run();
