@@ -1,4 +1,4 @@
 #!/bin/sh
 
-gcc main.c -O3 -o main
-time ./main A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+gcc main.c -O0 -o main.bin
+time ./main.bin
