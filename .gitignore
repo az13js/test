@@ -1,0 +1,8 @@
+# Ignore compressed files
+*.gz
+
+# This repository does not contain libpng's source code
+libpng-1.6.37/
+
+# This repository does not contain libpng's compiled file
+libpng/
