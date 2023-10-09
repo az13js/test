@@ -38,10 +38,6 @@ void NetworkConnection::bind(cephalopod_black_hole::Connect* connect) {
     this->connect = connect;
 }
 
-void NetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
-    doRecv(data, control);
-}
-
 void NetworkConnection::doRecv(std::string& data, cephalopod_pipe::PortState& control) {
     if (connect == nullptr) {
         control = cephalopod_pipe::PortState::CLOSE;
@@ -73,8 +69,18 @@ std::string NetworkConnection::getFileName(unsigned long id) {
     return std::string("cache/") + uuid + "-" + std::to_string(id);
 }
 
+void TransmissionNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
+    doRecv(data, control);
+    if (control == cephalopod_pipe::PortState::CLOSE) {
+        connect->close();
+    }
+}
+
 void TransmissionNetworkConnection::send(const std::string& data, cephalopod_pipe::PortState& control) {
     doSend(data, control);
+    if (control == cephalopod_pipe::PortState::CLOSE) {
+        connect->close();
+    }
 }
 
 void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {

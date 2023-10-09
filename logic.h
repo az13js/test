@@ -21,7 +21,6 @@ class NetworkConnection: public cephalopod_pipe::Port {
 public:
     NetworkConnection();
     virtual void bind(cephalopod_black_hole::Connect* connect);
-    void recv(std::string& data, cephalopod_pipe::PortState& control);
     virtual void doRecv(std::string& data, cephalopod_pipe::PortState& control);
     virtual void doSend(const std::string& data, cephalopod_pipe::PortState& control);
     virtual void close();
@@ -34,6 +33,7 @@ private:
 
 class TransmissionNetworkConnection: public NetworkConnection {
 public:
+    void recv(std::string& data, cephalopod_pipe::PortState& control);
     void send(const std::string& data, cephalopod_pipe::PortState& control);
 };
 
