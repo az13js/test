@@ -98,6 +98,7 @@ void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortS
         data += "\r\n";
         data += errorMessageSendback;
         errorMessageSendback.clear();
+        control = cephalopod_pipe::PortState::CLOSE;
         return;
     }
     if (connectSuccessMessage != "") {
@@ -136,7 +137,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
 
             if (httpRequest.isConnect()) {
                 try {
-                    openWithRetry(host, port, 2);
+                    openWithRetry(host, port, 3);
                 } catch (const std::string& errorMessage) {
                     errorMessageSendback = errorMessage;
                     control = cephalopod_pipe::PortState::CLOSE;
@@ -170,7 +171,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                 continue;
             }
             try {
-                openWithRetry(host, port, 2);
+                openWithRetry(host, port, 3);
             } catch (const std::string& errorMessage) {
                 errorMessageSendback = errorMessage;
                 control = cephalopod_pipe::PortState::CLOSE;
