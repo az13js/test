@@ -1,0 +1,17 @@
+[Unit]
+Description=Cephalopod proxy
+After=network.target
+
+[Service]
+WorkingDirectory=/root/cc
+ExecStartPre=rm -rf /root/cc/cache
+ExecStartPre=mkdir /root/cc/cache
+ExecStart=/root/cc/proxy --listen-ip=0.0.0.0 --listen-port=80
+ExecStop=/bin/kill -9 $MAINPID
+RestartSec=1
+Restart=always
+TasksMax=infinity
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

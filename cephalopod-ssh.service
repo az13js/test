@@ -1,0 +1,14 @@
+[Unit]
+Description=Cephalopod SSH
+After=network.target
+
+[Service]
+ExecStart=ssh -i /root/.ssh/id_rsa -p 22 -N -C -L 0.0.0.0:9002:127.0.0.1:9999 root@x.x.x.x
+ExecStop=/bin/kill -9 $MAINPID
+RestartSec=1
+Restart=always
+TasksMax=infinity
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
