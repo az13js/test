@@ -30,7 +30,9 @@ private:
     int fileDescriptor = -1;
     std::mutex mt;
     sockaddr_in addressInfo;
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
     sockaddr_in6 addressInfo6; // for IPv6
+#endif
     std::default_random_engine eng;
 };
 
@@ -44,7 +46,9 @@ private:
     int listenPort;
     int listenFileDescriptor = -1;
     sockaddr_in bindAddressInfo;
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
     sockaddr_in6 bindAddressInfo6; // for IPv6
+#endif
     void bindAddressAndListen(const std::string& address);
     void initBindAddress(const std::string& address);
     void checkBindResult(int bindResult) const;

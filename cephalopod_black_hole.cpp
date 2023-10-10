@@ -23,11 +23,15 @@ bool isIPv4(const std::string& str) {
 }
 
 bool isIPv6(const std::string& str) {
+#ifdef CEPHALOPOD_NO_IPV6_SUPPORT
+    return false;
+#else
     in6_addr ipv6Address;
     if (0 == inet_pton(AF_INET6, str.c_str(), &ipv6Address)) {
         return false;
     }
     return true;
+#endif
 }
 
 void checkFileDescriptor(const int fileDescriptor) {
@@ -65,6 +69,7 @@ void Connect::open(const std::string& host, int port, bool withDNSCache) {
             inet_aton(host.c_str(), &(addressInfo.sin_addr));
             fileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
         }
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
         if (isipv6) {
             addressInfo6.sin6_family = AF_INET6;
             addressInfo6.sin6_port = htons(port);
@@ -73,6 +78,7 @@ void Connect::open(const std::string& host, int port, bool withDNSCache) {
             p = (sockaddr *)&addressInfo6;
             size = sizeof(sockaddr_in6);
         }
+#endif
         auto tmpFd = fileDescriptor;
         fileDescriptor = -1;
         checkFileDescriptor(tmpFd);
@@ -181,13 +187,19 @@ BlackHole::BlackHole(const std::string& address, int port, const std::function<v
     auto isipv4 = isIPv4(address);
     auto isipv6 = isIPv6(address);
     if (!isipv4 && !isipv6) {
+#ifdef CEPHALOPOD_NO_IPV6_SUPPORT
+        throw string("Fail, address must be IPv4");
+#else
         throw string("Fail, address must be IPv4 or IPv6");
+#endif
     }
 
     if (isipv4) {
         listenFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     } else {
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
         listenFileDescriptor = socket(AF_INET6, SOCK_STREAM, 0);
+#endif
     }
     checkFileDescriptor(listenFileDescriptor);
     try {
@@ -206,7 +218,9 @@ void BlackHole::bindAddressAndListen(const std::string& address) {
     if (isIPv4(address)) {
         bindResult = bind(listenFileDescriptor, (sockaddr*)&bindAddressInfo, sizeof(sockaddr));
     } else {
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
         bindResult = bind(listenFileDescriptor, (sockaddr*)&bindAddressInfo6, sizeof(bindAddressInfo6));
+#endif
     }
     checkBindResult(bindResult);
     listenSocket();
@@ -220,10 +234,12 @@ void BlackHole::initBindAddress(const std::string& address) {
         bindAddressInfo.sin_port = htons(listenPort);
         inet_aton(address.c_str(), &(bindAddressInfo.sin_addr));
     } else {
+#ifndef CEPHALOPOD_NO_IPV6_SUPPORT
         bindAddressInfo6 = sockaddr_in6();
         bindAddressInfo6.sin6_family = AF_INET6;
         bindAddressInfo6.sin6_port = htons(listenPort);
         inet_pton(AF_INET6, address.c_str(), &(bindAddressInfo6.sin6_addr));
+#endif
     }
 }
 

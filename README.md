@@ -54,6 +54,10 @@ Then you can set up the address of the proxy service on another host, and access
     < Connection: close
     ... Omit the output ...
 
+If you want to disable IPv6 support, define a constant during compilation like this:
+
+    $ CXXFLAGS=-DCEPHALOPOD_NO_IPV6_SUPPORT make
+
 The proxy service does not support user name and password authentication. If you deploy your service on a public network, you need security, and you can use the `ssh` command to forward data:
 
     ssh -N -C -L 127.0.0.1:80:127.0.0.1:80 user@<your proxy service>
