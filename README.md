@@ -1,6 +1,6 @@
 # Cephalopod C++
 
-Provides HTTP proxy service `proxy`. The program passed testing on Ubuntu (I am not sure if it will work in all systems, because there are no unit test scripts, testing is manual at the moment). Compiling this program only requires the `make` and `g++` commands (The GCC compiler needs to support the C++17 standard). Most modern GNU/Linux systems meet these requirements. Inputting the `make` command, like this:
+Provides HTTP proxy service `proxy`. The program passed testing on Ubuntu and Debian (I am not sure if it will work in all systems, because there are no unit test scripts, testing is manual at the moment). Compiling this program only requires the `make` and `g++` commands (The GCC compiler needs to support the C++17 standard). Most modern GNU/Linux systems meet these requirements. Inputting the `make` command, like this:
 
     $ make
     g++  -std=c++17 -c -o proxy.o proxy.cpp
