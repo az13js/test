@@ -40,8 +40,11 @@ class BlackHole {
 
 public:
     BlackHole(const std::string& address, int port);
+    BlackHole(const std::string& address, int port, bool justReturn);
     BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback);
-
+    BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback, bool justReturn);
+    int getFileDescriptor() const;
+    void setUnBlock();
 private:
     int listenPort;
     int listenFileDescriptor = -1;

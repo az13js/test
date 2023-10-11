@@ -1,14 +1,15 @@
 #include "cephalopod_black_hole.h"
 
+#include "cephalopod_host_to_ip.h"
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <cerrno>
 #include <cstring>
-#include <arpa/inet.h>
 #include <cstdlib>
-#include <unistd.h>
 #include <thread>
-#include "cephalopod_host_to_ip.h"
 
 //#include "logic.h"
 
@@ -178,10 +179,18 @@ bool Connect::isOpen() {
 }
 
 BlackHole::BlackHole(const std::string& address, int port) {
-    BlackHole(address, port, [](Connect& connect) {});
+    BlackHole(address, port, [](Connect& connect) {}, false);
+}
+
+BlackHole::BlackHole(const std::string& address, int port, bool justReturn) {
+    BlackHole(address, port, [](Connect& connect) {}, justReturn);
 }
 
 BlackHole::BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback) {
+    BlackHole(address, port, userCallback, false);
+}
+
+BlackHole::BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback, bool justReturn) {
     using namespace std;
     listenPort = port;
     auto isipv4 = isIPv4(address);
@@ -204,11 +213,23 @@ BlackHole::BlackHole(const std::string& address, int port, const std::function<v
     checkFileDescriptor(listenFileDescriptor);
     try {
         bindAddressAndListen(address);
+        if (justReturn) {
+            return;
+        }
         doAcceptAndLoop(userCallback);
     } catch (const string &e) {
         closeFileDescriptor();
         throw e;
     }
+}
+
+int BlackHole::getFileDescriptor() const {
+    return listenFileDescriptor;
+}
+
+void BlackHole::setUnBlock() {
+    int flags = fcntl(listenFileDescriptor, F_GETFL, 0);
+    fcntl(listenFileDescriptor, F_SETFL, flags | O_NONBLOCK);
 }
 
 void BlackHole::bindAddressAndListen(const std::string& address) {
