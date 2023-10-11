@@ -1,6 +1,6 @@
-all: proxy trans
+all: proxy proxy_epoll trans
 clean:
-	rm -f proxy trans *.o
+	rm -f proxy proxy_epoll trans *.o
 	rm -rf cache
 
 proxy: proxy.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o
@@ -39,3 +39,12 @@ cephalopod_host_to_ip.o: cephalopod_host_to_ip.cpp cephalopod_host_to_ip.h
 
 logic.o: logic.cpp logic.h
 	$(CXX) $(CXXFLAGS) -std=c++17 -c -o logic.o logic.cpp
+
+proxy_epoll: proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o
+	$(CXX) -o proxy_epoll proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o -lpthread
+
+proxy_epoll.o: proxy_epoll.cpp
+	$(CXX) $(CXXFLAGS) -std=c++17 -c -o proxy_epoll.o proxy_epoll.cpp
+
+cephalopod_epoll.o: cephalopod_epoll.cpp cephalopod_epoll.h
+	$(CXX) $(CXXFLAGS) -std=c++17 -c -o cephalopod_epoll.o cephalopod_epoll.cpp
