@@ -24,14 +24,12 @@ namespace cephalopod_pipe {
                     auto s = PortState::NORMAL;
                     do {
                         p->recv(data, s);
+                        if (data != "") {
+                            queueRecv->push(data);
+                            data.clear();
+                        }
                         if (s == PortState::CLOSE) {
                             queueRecv->push(string(""));
-                        }
-                        else {
-                            if (data != "") {
-                                queueRecv->push(data);
-                                data.clear();
-                            }
                         }
                     } while (s != PortState::CLOSE);
                 };

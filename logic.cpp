@@ -38,10 +38,6 @@ void NetworkConnection::bind(cephalopod_black_hole::Connect* connect) {
     this->connect = connect;
 }
 
-void NetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
-    doRecv(data, control);
-}
-
 void NetworkConnection::doRecv(std::string& data, cephalopod_pipe::PortState& control) {
     if (connect == nullptr) {
         control = cephalopod_pipe::PortState::CLOSE;
@@ -73,8 +69,18 @@ std::string NetworkConnection::getFileName(unsigned long id) {
     return std::string("cache/") + uuid + "-" + std::to_string(id);
 }
 
+void TransmissionNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
+    doRecv(data, control);
+    if (control == cephalopod_pipe::PortState::CLOSE) {
+        connect->close();
+    }
+}
+
 void TransmissionNetworkConnection::send(const std::string& data, cephalopod_pipe::PortState& control) {
     doSend(data, control);
+    if (control == cephalopod_pipe::PortState::CLOSE) {
+        connect->close();
+    }
 }
 
 void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
@@ -98,6 +104,7 @@ void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortS
         data += "\r\n";
         data += errorMessageSendback;
         errorMessageSendback.clear();
+        control = cephalopod_pipe::PortState::CLOSE;
         return;
     }
     if (connectSuccessMessage != "") {
@@ -136,7 +143,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
 
             if (httpRequest.isConnect()) {
                 try {
-                    openWithRetry(host, port, 2);
+                    openWithRetry(host, port, 3);
                 } catch (const std::string& errorMessage) {
                     errorMessageSendback = errorMessage;
                     control = cephalopod_pipe::PortState::CLOSE;
@@ -170,7 +177,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                 continue;
             }
             try {
-                openWithRetry(host, port, 2);
+                openWithRetry(host, port, 3);
             } catch (const std::string& errorMessage) {
                 errorMessageSendback = errorMessage;
                 control = cephalopod_pipe::PortState::CLOSE;
