@@ -1,6 +1,8 @@
 #include "cephalopod_epoll.h"
 #include "cephalopod_black_hole.h"
 
+#include <iostream>
+
 #include <sys/epoll.h> // epoll_create()
 #include <cerrno> // errno
 #include <cstring> // strerror
@@ -55,6 +57,7 @@ void EpollServer::start(const std::string& address, int port) {
     auto getUnblockFileDescriptor = [](const std::string& address, int port) {
         cephalopod_black_hole::BlackHole fileDescriptorCreater(address, port, true);
         fileDescriptorCreater.setUnBlock();
+        std::cout << fileDescriptorCreater.getFileDescriptor() << std::endl;
         return fileDescriptorCreater.getFileDescriptor();
     };
 
@@ -71,7 +74,7 @@ void EpollServer::start(const std::string& address, int port) {
     serverEpollEvent.data.ptr = (void*)&listenFileDescriptorEndpoint;
 
     if (-1 == epoll_ctl(epollFileDescriptor, EPOLL_CTL_ADD, listenFileDescriptorEndpoint.getFileDescriptor(), &serverEpollEvent)) {
-        auto errorMessage = string("Call epoll_ctl(..EPOLL_CTL_ADD..) fail, errno:") + to_string(errno) + ", info:" + strerror(errno);
+        auto errorMessage = string("Call epoll_ctl(..EPOLL_CTL_ADD..) fail, errno:") + to_string(errno) + ", info:" + strerror(errno) + ", fd=" + to_string(listenFileDescriptorEndpoint.getFileDescriptor());
         close(epollFileDescriptor);
         throw errorMessage;
     }
@@ -165,7 +168,7 @@ void EpollServer::closeThisEndpoint(FileDescriptorEndpoint* endpoint) {
     if (it == endpoints.end()) {
         return;
     }
-    endpoints.ease(endpoint);
+    endpoints.erase(endpoint);
     delete endpoint;
 }
 

@@ -30,7 +30,11 @@ int main(int argc, const char *argv[]) {
     std::cout << "Ok, --listen-ip=\"" << listenIp << "\" --listen-port=\"" << listenPort << "\"" << std::endl;
 
     cephalopod_epoll::EpollServer server;
-    server.start(listenIp, std::stoi(listenPort));
+    try {
+        server.start(listenIp, std::stoi(listenPort));
+    } catch (const std::string& e) {
+        std::cout << e << std::endl;
+    }
 
     std::string tmp;
     std::cin >> tmp;

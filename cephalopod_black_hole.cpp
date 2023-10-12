@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <thread>
 
+#include <iostream>
+
 //#include "logic.h"
 
 namespace cephalopod_black_hole {
@@ -224,6 +226,7 @@ BlackHole::BlackHole(const std::string& address, int port, const std::function<v
 }
 
 int BlackHole::getFileDescriptor() const {
+    std::cout << std::to_string(listenFileDescriptor) << std::endl;
     return listenFileDescriptor;
 }
 
