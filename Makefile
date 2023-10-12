@@ -40,8 +40,8 @@ cephalopod_host_to_ip.o: cephalopod_host_to_ip.cpp cephalopod_host_to_ip.h
 logic.o: logic.cpp logic.h
 	$(CXX) $(CXXFLAGS) -std=c++17 -c -o logic.o logic.cpp
 
-proxy_epoll: proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o
-	$(CXX) -o proxy_epoll proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o -lpthread
+proxy_epoll: proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o cephalopod_black_hole.o cephalopod_host_to_ip.o
+	$(CXX) -o proxy_epoll proxy_epoll.o cephalopod_epoll.o cephalopod_argument.o cephalopod_black_hole.o cephalopod_host_to_ip.o -lpthread
 
 proxy_epoll.o: proxy_epoll.cpp
 	$(CXX) $(CXXFLAGS) -std=c++17 -c -o proxy_epoll.o proxy_epoll.cpp
