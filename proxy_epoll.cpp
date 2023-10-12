@@ -1,4 +1,5 @@
 #include "cephalopod_argument.h"
+#include "cephalopod_epoll.h"
 #include <string>
 #include <iostream>
 #include <filesystem>
@@ -28,5 +29,11 @@ int main(int argc, const char *argv[]) {
 
     std::cout << "Ok, --listen-ip=\"" << listenIp << "\" --listen-port=\"" << listenPort << "\"" << std::endl;
 
+    cephalopod_epoll::EpollServer server;
+    server.start(listenIp, std::stoi(listenPort));
+
+    std::string tmp;
+    std::cin >> tmp;
+    std::cout << "Finish, your input is " << tmp << std::endl;
     return 0;
 }

@@ -67,19 +67,52 @@ void EpollServer::start(const std::string& address, int port) {
             delete[] epollEvents;
             auto errorMessage = string("Call epoll_wait() fail, errno:") + to_string(errno) + ", info:" + strerror(errno);
             close(epollFileDescriptor);
+            cleanEndpoints();
             throw errorMessage;
         }
 
         for (int idx = 0; idx < readyEventNumber; idx++) {
             auto epollEvent = &(epollEvents[idx]);
             auto endpoint = (FileDescriptorEndpoint*)(epollEvents->data.ptr);
-            if (endpoint->isListen()) {
-                
+            if (endpoint->isListen() && (epollEvent->events & EPOLLET != 0)) {
+                FileDescriptorEndpoint* newEndpoint = nullptr;
+                try {
+                    newEndpoint = acceptNewEntpoint(endpoint);
+                } catch (const string& e) {
+                    delete[] epollEvents;
+                    close(epollFileDescriptor);
+                    cleanEndpoints();
+                    throw e;
+                }
+
+                clientEpollEvent = new epoll_event();
+                clientEpollEvent->events = EPOLLIN | EPOLLET;
+                clientEpollEvent->data.ptr = (void*)newEndpoint;
+
+                newEndpoint
+                // callback
             }
+
+            
         }
         // readyEventNumber is zero if no file descriptor became ready during the requested timeout milliseconds
     }
 
+}
+
+FileDescriptorEndpoint* EpollServer::acceptNewEntpoint(FileDescriptorEndpoint* endpoint) {
+    cephalopod_black_hole::SocketAccept fileDescriptorCreater(endpoint->getFileDescriptor());
+    fileDescriptorCreater.setUnBlock();
+    auto newEndpoint = new FileDescriptorEndpoint(fileDescriptorCreater.getFileDescriptor(), false);
+    endpoints[newEndpoint] = true;
+    return newEndpoint;
+}
+
+void EpollServer::cleanEndpoints() {
+    for (auto it = endpoints.begin(); it != endpoints.end(); it++) {
+        delete (it->first);
+    }
+    endpoints.clear();
 }
 
 } // namespace cephalopod_epoll

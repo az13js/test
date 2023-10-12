@@ -65,6 +65,8 @@ class SocketAccept {
 public:
     SocketAccept(int fileDescriptor);
     void run(const std::function<void(Connect&)>& userCallback);
+    void setUnBlock();
+    int getFileDescriptor() const;
 
 private:
     socklen_t socketAddressLength;

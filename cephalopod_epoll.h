@@ -2,6 +2,7 @@
 #define _cephalopod_epoll_h_
 
 #include <string>
+#include <map>
 
 namespace cephalopod_epoll {
 
@@ -19,9 +20,12 @@ private:
 class EpollServer
 {
 public:
-    virtual void start(const std::string& address, int port);
+    virtual void start(const std::string& address, int port) final;
 private:
     int epollFileDescriptor = -1;
+    std::map<FileDescriptorEndpoint*, bool> endpoints;
+    FileDescriptorEndpoint* acceptNewEntpoint(FileDescriptorEndpoint* endpoint);
+    void cleanEndpoints();
 };
 
 } // namespace cephalopod_epoll

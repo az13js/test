@@ -323,4 +323,13 @@ void SocketAccept::run(const std::function<void(Connect&)>& userCallback) {
     userCallback(connect);
 }
 
+void SocketAccept::setUnBlock() {
+    int flags = fcntl(clientFileDescriptor, F_GETFL, 0);
+    fcntl(clientFileDescriptor, F_SETFL, flags | O_NONBLOCK);
+}
+
+int SocketAccept::getFileDescriptor() const {
+    return clientFileDescriptor;
+}
+
 } // cephalopod_black_hole
