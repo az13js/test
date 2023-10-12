@@ -23,6 +23,7 @@ public:
     void open(const std::string& host, int port, bool withDNSCache);
     void open(int clientFileDescriptor);
     void send(const std::string& data);
+    long originSend(int fileDescriptor, const char* buffer, unsigned long bufferSize);
     void recv(std::string& data);
     void close();
     bool isOpen();

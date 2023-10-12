@@ -136,19 +136,19 @@ void Connect::open(int clientFileDescriptor) {
 }
 
 void Connect::send(const std::string& data) {
-    auto sendLength = ::send(fileDescriptor, data.c_str(), data.length(), MSG_NOSIGNAL);
+    long sendLength = 0;
+    do {
+        sendLength += originSend(fileDescriptor, data.c_str() + sendLength, data.length() - sendLength);
+    } while (sendLength > 0 && sendLength < data.length());
+}
+
+long Connect::originSend(int fileDescriptor, const char* buffer, unsigned long bufferSize) {
+    auto sendLength = ::send(fileDescriptor, buffer, bufferSize, MSG_NOSIGNAL);
     if (sendLength <= 0) {
         throw std::string("send() < 0") + std::to_string(errno)
             + ", message: " + std::string(strerror(errno));
     }
-    while (sendLength > 0 && sendLength < data.length()) {
-        auto tmpSendLength = ::send(fileDescriptor, data.c_str() + sendLength, data.length() - sendLength, MSG_NOSIGNAL);
-        if (tmpSendLength <= 0) {
-            throw std::string("send() <= 0, ") + std::to_string(errno)
-                + ", message: " + std::string(strerror(errno));
-        }
-        sendLength += tmpSendLength;
-    }
+    return sendLength;
 }
 
 void Connect::recv(std::string& data) {
