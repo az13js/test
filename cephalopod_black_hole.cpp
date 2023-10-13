@@ -271,6 +271,9 @@ void BlackHole::doAcceptAndLoop(const std::function<void(Connect&)>& userCallbac
     } catch (const std::string& e) {
         closeFileDescriptor();
         throw e;
+    } catch (const std::system_error e) {
+        closeFileDescriptor();
+        throw std::string("Create thread fail");
     }
 }
 

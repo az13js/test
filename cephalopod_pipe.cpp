@@ -69,20 +69,28 @@ namespace cephalopod_pipe {
                     } while (fileData != "");
                     pSend->close();
                 };
-            thread p1ThreadRecv(threadRecvLogic, p1, &p1Recv);
-            thread p2ThreadRecv(threadRecvLogic, p2, &p2Recv);
-            thread p1ThreadFile(threadFileLogic, p1, &p1Recv, &p1File);
-            thread p2ThreadFile(threadFileLogic, p2, &p2Recv, &p2File);
-            thread p1ThreadSend(threadSendLogic, p2, &p1File);
-            thread p2ThreadSend(threadSendLogic, p1, &p2File);
-            p1ThreadRecv.join();
-            p1ThreadFile.join();
-            p1ThreadSend.join();
-            p2ThreadRecv.join();
-            p2ThreadFile.join();
-            p2ThreadSend.join();
+            string errorMessage;
+            try {
+                thread p1ThreadRecv(threadRecvLogic, p1, &p1Recv);
+                thread p2ThreadRecv(threadRecvLogic, p2, &p2Recv);
+                thread p1ThreadFile(threadFileLogic, p1, &p1Recv, &p1File);
+                thread p2ThreadFile(threadFileLogic, p2, &p2Recv, &p2File);
+                thread p1ThreadSend(threadSendLogic, p2, &p1File);
+                thread p2ThreadSend(threadSendLogic, p1, &p2File);
+                p1ThreadRecv.join();
+                p1ThreadFile.join();
+                p1ThreadSend.join();
+                p2ThreadRecv.join();
+                p2ThreadFile.join();
+                p2ThreadSend.join();
+            } catch (const system_error& e) {
+                errorMessage.assign("Create thread fail, in make pip...");
+            }
             delete p1;
             delete p2;
+            if (errorMessage != "") {
+                throw errorMessage;
+            }
         };
         if (isJoin) {
             mainFunction(p1, p2);
