@@ -19,6 +19,17 @@ namespace cephalopod_thread_safe_queue {
         std::condition_variable cv;
     };
 
+    class PointerQueue {
+    public:
+        void push(void* pointer);
+        void* frontAndPop();
+
+    private:
+        std::queue<void*> pointerQueue;
+        std::mutex mt;
+        std::condition_variable cv;
+    };
+
 } // namespace cephalopod_thread_safe_queue
 
 #endif // _cephalopod_thread_safe_queue_h_

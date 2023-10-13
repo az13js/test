@@ -53,6 +53,7 @@ private:
 #ifndef CEPHALOPOD_NO_IPV6_SUPPORT
     sockaddr_in6 bindAddressInfo6; // for IPv6
 #endif
+    void init(const std::string& address, int port, const std::function<void(Connect&)>& userCallback, bool justReturn);
     void bindAddressAndListen(const std::string& address);
     void initBindAddress(const std::string& address);
     void checkBindResult(int bindResult) const;

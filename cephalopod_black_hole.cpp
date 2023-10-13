@@ -11,10 +11,6 @@
 #include <cstdlib>
 #include <thread>
 
-#include <iostream>
-
-//#include "logic.h"
-
 namespace cephalopod_black_hole {
 
 bool isIPv4(const std::string& str) {
@@ -181,18 +177,22 @@ bool Connect::isOpen() {
 }
 
 BlackHole::BlackHole(const std::string& address, int port) {
-    BlackHole(address, port, [](Connect& connect) {}, false);
+    init(address, port, [](Connect& connect) {}, false);
 }
 
 BlackHole::BlackHole(const std::string& address, int port, bool justReturn) {
-    BlackHole(address, port, [](Connect& connect) {}, justReturn);
+    init(address, port, [](Connect& connect) {}, justReturn);
 }
 
 BlackHole::BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback) {
-    BlackHole(address, port, userCallback, false);
+    init(address, port, userCallback, false);
 }
 
 BlackHole::BlackHole(const std::string& address, int port, const std::function<void(Connect&)>& userCallback, bool justReturn) {
+    init(address, port, userCallback, justReturn);
+}
+
+void BlackHole::init(const std::string& address, int port, const std::function<void(Connect&)>& userCallback, bool justReturn) {
     using namespace std;
     listenPort = port;
     auto isipv4 = isIPv4(address);
@@ -225,14 +225,13 @@ BlackHole::BlackHole(const std::string& address, int port, const std::function<v
     }
 }
 
-int BlackHole::getFileDescriptor() const {
-    std::cout << std::to_string(listenFileDescriptor) << std::endl;
-    return listenFileDescriptor;
-}
-
 void BlackHole::setUnBlock() {
     int flags = fcntl(listenFileDescriptor, F_GETFL, 0);
     fcntl(listenFileDescriptor, F_SETFL, flags | O_NONBLOCK);
+}
+
+int BlackHole::getFileDescriptor() const {
+    return listenFileDescriptor;
 }
 
 void BlackHole::bindAddressAndListen(const std::string& address) {

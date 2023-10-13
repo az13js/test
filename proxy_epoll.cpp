@@ -32,12 +32,11 @@ int main(int argc, const char *argv[]) {
     cephalopod_epoll::EpollServer server;
     try {
         server.start(listenIp, std::stoi(listenPort));
+        std::string tmp;
+        std::cin >> tmp;
+        std::cout << "Finish, your input is " << tmp << std::endl;
     } catch (const std::string& e) {
         std::cout << e << std::endl;
     }
-
-    std::string tmp;
-    std::cin >> tmp;
-    std::cout << "Finish, your input is " << tmp << std::endl;
     return 0;
 }

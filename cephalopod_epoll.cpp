@@ -1,7 +1,7 @@
 #include "cephalopod_epoll.h"
-#include "cephalopod_black_hole.h"
 
-#include <iostream>
+#include "cephalopod_black_hole.h"
+#include "cephalopod_thread_safe_queue.h"
 
 #include <sys/epoll.h> // epoll_create()
 #include <cerrno> // errno
@@ -42,6 +42,10 @@ void FileDescriptorEndpoint::bindEpollEventPointer(void* epollEvent) {
     this->epollEvent = epollEvent;
 }
 
+void* FileDescriptorEndpoint::getEpollEventPointer() const {
+    return epollEvent;
+}
+
 void FileDescriptorEndpoint::bindCephalopodConnect(void* connect) {
     this->cephalopodConnect = connect;
 }
@@ -57,7 +61,6 @@ void EpollServer::start(const std::string& address, int port) {
     auto getUnblockFileDescriptor = [](const std::string& address, int port) {
         cephalopod_black_hole::BlackHole fileDescriptorCreater(address, port, true);
         fileDescriptorCreater.setUnBlock();
-        std::cout << fileDescriptorCreater.getFileDescriptor() << std::endl;
         return fileDescriptorCreater.getFileDescriptor();
     };
 
@@ -133,12 +136,12 @@ void EpollServer::start(const std::string& address, int port) {
                 auto connect = (Connect*)(endpoint->getCephalopodConnect());
                 if (epollEvent->events & EPOLLIN != 0) {
                     string data;
-                    string dataFull;
+                    auto dataFull = new string();
                     try {
                         while (true) {
                             data.clear();
                             connect->recv(data);
-                            dataFull += data;
+                            dataFull->append(data);
                         }
                     } catch (const string& e) {
                         dataRecvFinish(this, endpoint, dataFull, e);
@@ -157,7 +160,12 @@ void EpollServer::start(const std::string& address, int port) {
 void EpollServer::newConnectionEstablished(EpollServer* server, FileDescriptorEndpoint* endpoint) {
 }
 
-void EpollServer::dataRecvFinish(EpollServer* server, FileDescriptorEndpoint* endpoint, const std::string& dataFull, const std::string& errorMessage) {
+void EpollServer::dataRecvFinish(EpollServer* server, FileDescriptorEndpoint* endpoint, std::string* dataFull, const std::string& errorMessage) {
+    if (dataFull->length() == 0) {
+        delete dataFull;
+        // this point is closed.
+        return;
+    }
 }
 
 void EpollServer::holdEndpointCanWrite(EpollServer* server, FileDescriptorEndpoint* endpoint) {
@@ -169,6 +177,9 @@ void EpollServer::closeThisEndpoint(FileDescriptorEndpoint* endpoint) {
         return;
     }
     endpoints.erase(endpoint);
+    if (-1 != epollFileDescriptor) {
+        epoll_ctl(epollFileDescriptor, EPOLL_CTL_DEL, endpoint->getFileDescriptor(), (epoll_event*)(endpoint->getEpollEventPointer()));
+    }
     delete endpoint;
 }
 

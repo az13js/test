@@ -13,6 +13,7 @@ public:
     int getFileDescriptor() const;
     bool isListen() const;
     void bindEpollEventPointer(void* epollEvent);
+    void* getEpollEventPointer() const;
     void bindCephalopodConnect(void* connect);
     void* getCephalopodConnect() const;
 private:
@@ -27,7 +28,7 @@ class EpollServer
 public:
     virtual void start(const std::string& address, int port) final;
     virtual void newConnectionEstablished(EpollServer* server, FileDescriptorEndpoint* endpoint);
-    virtual void dataRecvFinish(EpollServer* server, FileDescriptorEndpoint* endpoint, const std::string& dataFull, const std::string& errorMessage);
+    virtual void dataRecvFinish(EpollServer* server, FileDescriptorEndpoint* endpoint, std::string* dataFull, const std::string& errorMessage);
     virtual void holdEndpointCanWrite(EpollServer* server, FileDescriptorEndpoint* endpoint);
     virtual void closeThisEndpoint(FileDescriptorEndpoint* endpoint);
 private:
