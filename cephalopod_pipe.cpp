@@ -69,7 +69,6 @@ namespace cephalopod_pipe {
                     } while (fileData != "");
                     pSend->close();
                 };
-            string errorMessage;
             try {
                 thread p1ThreadRecv(threadRecvLogic, p1, &p1Recv);
                 thread p2ThreadRecv(threadRecvLogic, p2, &p2Recv);
@@ -78,25 +77,24 @@ namespace cephalopod_pipe {
                 thread p1ThreadSend(threadSendLogic, p2, &p1File);
                 thread p2ThreadSend(threadSendLogic, p1, &p2File);
                 p1ThreadRecv.join();
-                p1ThreadFile.join();
-                p1ThreadSend.join();
                 p2ThreadRecv.join();
+                p1ThreadFile.join();
                 p2ThreadFile.join();
+                p1ThreadSend.join();
                 p2ThreadSend.join();
             } catch (const system_error& e) {
-                errorMessage.assign("Create thread fail, in make pip...");
             }
             delete p1;
             delete p2;
-            if (errorMessage != "") {
-                throw errorMessage;
-            }
         };
         if (isJoin) {
             mainFunction(p1, p2);
         } else {
-            thread worker(mainFunction, p1, p2);
-            worker.detach();
+            try {
+                thread worker(mainFunction, p1, p2);
+                worker.detach();
+            } catch (const system_error& e) {
+            }
         }
     }
 
