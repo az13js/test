@@ -1,5 +1,5 @@
 <?php
-$fileNameAndContents = [];
+$fileNames = [];
 
 $d = opendir(__DIR__);
 if (false === $d) {
@@ -15,17 +15,20 @@ while (false !== ($file = readdir($d))) {
         continue;
     }
     $ext = pathinfo($file, PATHINFO_EXTENSION);
-    if (!in_array($ext, ['cpp', 'h', 'php', 'txt', 'sh', 'service']) && $file != 'Makefile') {
+    if (
+        !in_array($ext, ['cpp', 'h', 'php', 'txt', 'sh', 'service'])
+        && !in_array($file, ['Makefile', '.gitignore'])
+    ) {
         continue;
     }
-    $contents = file_get_contents($file);
-    $contents = str_replace("\r\n", "\n", $contents);
-    $fileNameAndContents[$file] = $contents;
+    $fileNames[] = $file;
 }
 
 closedir($d);
 
-foreach ($fileNameAndContents as $file => $contents) {
-    echo $file . PHP_EOL;
+foreach ($fileNames as $file) {
+    $contents = file_get_contents($file);
+    $contents = str_replace("\r\n", "\n", $contents);
+    echo "str_replace: $file" . PHP_EOL;
     file_put_contents($file, $contents);
 }
