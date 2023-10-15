@@ -16,7 +16,7 @@ while (false !== ($file = readdir($d))) {
     }
     $ext = pathinfo($file, PATHINFO_EXTENSION);
     if (
-        !in_array($ext, ['cpp', 'h', 'php', 'txt', 'sh', 'service'])
+        !in_array($ext, ['cpp', 'h', 'php', 'txt', 'sh', 'service', 'md'])
         && !in_array($file, ['Makefile', '.gitignore'])
     ) {
         continue;
