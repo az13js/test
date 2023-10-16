@@ -12,8 +12,8 @@
 static std::mutex printLogMt;
 
 void printLog(const std::string& message);
-
 void printLog(const std::string&& message);
+void printLog(const char* message);
 
 std::string globalGetUUID();
 
