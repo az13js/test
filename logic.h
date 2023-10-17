@@ -5,6 +5,8 @@
 #include "cephalopod_pipe.h"
 #include "cephalopod_http.h"
 #include <string>
+#include <condition_variable>
+#include <mutex>
 
 void printLog(const std::string& message);
 void printLog(const std::string&& message);

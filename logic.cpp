@@ -8,19 +8,19 @@
 
 void printLog(const std::string& message) {
     std::stringstream ss;
-    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
 void printLog(const std::string&& message) {
     std::stringstream ss;
-    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
 void printLog(const char* message) {
     std::stringstream ss;
-    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
