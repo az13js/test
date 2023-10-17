@@ -3,12 +3,12 @@ clean:
 	rm -f proxy trans *.o
 	rm -rf cache
 
-proxy: proxy.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o
-	$(CXX) -o proxy proxy.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o -lpthread
+proxy: proxy.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o cephalopod_log.o
+	$(CXX) -o proxy proxy.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o cephalopod_log.o -lpthread
 	mkdir -p cache
 
-trans: trans.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o
-	$(CXX) -o trans trans.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o -lpthread
+trans: trans.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o cephalopod_log.o
+	$(CXX) -o trans trans.o cephalopod_black_hole.o cephalopod_http.o cephalopod_http_tools.o cephalopod_pipe.o cephalopod_thread_safe_queue.o cephalopod_host_to_ip.o logic.o cephalopod_argument.o cephalopod_log.o -lpthread
 
 trans.o: trans.cpp
 	$(CXX) $(CXXFLAGS) -std=c++17 -c -o trans.o trans.cpp
@@ -39,3 +39,6 @@ cephalopod_host_to_ip.o: cephalopod_host_to_ip.cpp cephalopod_host_to_ip.h
 
 logic.o: logic.cpp logic.h
 	$(CXX) $(CXXFLAGS) -std=c++17 -c -o logic.o logic.cpp
+
+cephalopod_log.o: cephalopod_log.h cephalopod_log.cpp
+	$(CXX) $(CXXFLAGS) -std=c++17 -c -o cephalopod_log.o cephalopod_log.cpp

@@ -1,22 +1,27 @@
 #include "logic.h"
+#include "cephalopod_log.h"
 #include <functional>
 #include <random>
-#include <iostream>
 #include <thread> // for printLog
+#include <sstream> // for printLog
+#include <iostream> // for printLog
 
 void printLog(const std::string& message) {
-    std::unique_lock<std::mutex> lock(printLogMt);
-    std::cout << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    std::stringstream ss;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
 void printLog(const std::string&& message) {
-    std::unique_lock<std::mutex> lock(printLogMt);
-    std::cout << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    std::stringstream ss;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
 void printLog(const char* message) {
-    std::unique_lock<std::mutex> lock(printLogMt);
-    std::cout << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    std::stringstream ss;
+    ss << "(thread " << std::this_thread::get_id() << ") " << message << std::endl;
+    cephalopod_log::LogUtil::getLogUtil().info(ss.str());
 }
 
 std::string globalGetUUID() {
