@@ -86,13 +86,12 @@ void TransmissionNetworkConnection::send(const std::string& data, cephalopod_pip
 void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
     std::unique_lock<std::mutex> lock(mt);
     cv.wait(lock, [this]() {
-        if (errorMessageSendback != "") {
-            return true;
-        }
-        if (connectSuccessMessage != "") {
-            return true;
-        }
-        if (connect->isOpen()) {
+        if (
+            errorMessageSendback != ""
+            || connectSuccessMessage != ""
+            || connect->isOpen()
+            || notifyConnectionClose
+        ) {
             return true;
         }
         return false;
@@ -117,13 +116,14 @@ void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortS
         doRecv(data, control);
         return;
     }
+    // notifyConnectionClose
     control = cephalopod_pipe::PortState::CLOSE;
 }
 
 void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe::PortState& control) {
     std::unique_lock<std::mutex> lock(mt);
     if (connect->isOpen() && httpRequest.isConnect()) {
-        cv.notify_one();
+        cv.notify_all();
         lock.unlock();
         doSend(data, control);
         return;
@@ -147,17 +147,17 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                 } catch (const std::string& errorMessage) {
                     errorMessageSendback = errorMessage;
                     control = cephalopod_pipe::PortState::CLOSE;
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 connectSuccessMessage = "HTTP/1.1 200 Connection Established\r\n\r\n";
                 if (offset >= dataLength - 1) {
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 auto dataRealSend = data.substr(offset);
                 doSend(dataRealSend, control);
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
 
@@ -166,12 +166,12 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
             if (connect->isOpen()) {
                 if (host != firstRequestHost || port != firstRequestPort) {
                     control = cephalopod_pipe::PortState::CLOSE;
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 doSend(dataRealSend, control);
                 if (control == cephalopod_pipe::PortState::CLOSE) {
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 continue;
@@ -181,12 +181,12 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
             } catch (const std::string& errorMessage) {
                 errorMessageSendback = errorMessage;
                 control = cephalopod_pipe::PortState::CLOSE;
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
             doSend(dataRealSend, control);
             if (control == cephalopod_pipe::PortState::CLOSE) {
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
             httpResolved = false;
@@ -194,7 +194,13 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
             firstRequestPort = port;
         }
     }
-    cv.notify_one();
+    cv.notify_all();
+}
+
+void ProxyLogicNetworkConnection::close() {
+    std::unique_lock<std::mutex> lock(mt);
+    notifyConnectionClose = true;
+    cv.notify_all();
 }
 
 void ProxyLogicNetworkConnection::openWithRetry(const std::string& host, int port, int maxAccessCount) {
