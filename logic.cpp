@@ -124,6 +124,10 @@ void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortS
             printLog("ProxyLogicNetworkConnection::recv - connect ok, wait success");
             return true;
         }
+        if (notifyConnectionClose) {
+            printLog("ProxyLogicNetworkConnection::recv - close connection, recv fail");
+            return true;
+        }
         printLog("ProxyLogicNetworkConnection::recv - wait fail");
         return false;
     });
@@ -150,6 +154,7 @@ void ProxyLogicNetworkConnection::recv(std::string& data, cephalopod_pipe::PortS
         doRecv(data, control);
         return;
     }
+    // notifyConnectionClose
     control = cephalopod_pipe::PortState::CLOSE;
     printLog("ProxyLogicNetworkConnection::recv - state=CLOSE");
 }
@@ -159,7 +164,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
     std::unique_lock<std::mutex> lock(mt);
     printLog("ProxyLogicNetworkConnection::send - lock!");
     if (connect->isOpen() && httpRequest.isConnect()) {
-        cv.notify_one();
+        cv.notify_all();
         lock.unlock();
         printLog("ProxyLogicNetworkConnection::send - just send");
         doSend(data, control);
@@ -187,13 +192,13 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                     errorMessageSendback = errorMessage;
                     control = cephalopod_pipe::PortState::CLOSE;
                     printLog("ProxyLogicNetworkConnection::send - open fail");
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 connectSuccessMessage = "HTTP/1.1 200 Connection Established\r\n\r\n";
                 if (offset >= dataLength - 1) {
                     printLog("ProxyLogicNetworkConnection::send - open success, Connection Established");
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 auto dataRealSend = data.substr(offset);
@@ -204,7 +209,7 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                     controlInfo = "CLOSE";
                 }
                 printLog(std::string("ProxyLogicNetworkConnection::send - open success, Connection Established and send extend data finish, control=") + controlInfo);
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
 
@@ -214,14 +219,14 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                 if (host != firstRequestHost || port != firstRequestPort) {
                     control = cephalopod_pipe::PortState::CLOSE;
                     printLog("ProxyLogicNetworkConnection::send - host is change, send fail");
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 printLog("ProxyLogicNetworkConnection::send - doSend");
                 doSend(dataRealSend, control);
                 if (control == cephalopod_pipe::PortState::CLOSE) {
                     printLog("ProxyLogicNetworkConnection::send - doSend fail");
-                    cv.notify_one();
+                    cv.notify_all();
                     return;
                 }
                 continue;
@@ -233,14 +238,14 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
                 errorMessageSendback = errorMessage;
                 control = cephalopod_pipe::PortState::CLOSE;
                 printLog(std::string("ProxyLogicNetworkConnection::send - open remote fail, errror=") + errorMessage);
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
             printLog("ProxyLogicNetworkConnection::send - send to remote");
             doSend(dataRealSend, control);
             if (control == cephalopod_pipe::PortState::CLOSE) {
                 printLog("ProxyLogicNetworkConnection::send - send to remote fail");
-                cv.notify_one();
+                cv.notify_all();
                 return;
             }
             httpResolved = false;
@@ -249,7 +254,14 @@ void ProxyLogicNetworkConnection::send(const std::string& data, cephalopod_pipe:
         }
     }
     printLog("ProxyLogicNetworkConnection::send - exit");
-    cv.notify_one();
+    cv.notify_all();
+}
+
+void ProxyLogicNetworkConnection::close() {
+    std::unique_lock<std::mutex> lock(mt);
+    notifyConnectionClose = true;
+    printLog(std::string("ProxyLogicNetworkConnection::close, connect=") + std::to_string((unsigned long)connect));
+    cv.notify_all();
 }
 
 void ProxyLogicNetworkConnection::openWithRetry(const std::string& host, int port, int maxAccessCount) {
