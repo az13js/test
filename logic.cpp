@@ -7,21 +7,27 @@
 #include <iostream> // for printLog
 
 void printLog(const std::string& message) {
+#ifdef CEPHALOPOD_DEBUG
     std::stringstream ss;
     ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
+#endif
 }
 
 void printLog(const std::string&& message) {
+#ifdef CEPHALOPOD_DEBUG
     std::stringstream ss;
     ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
+#endif
 }
 
 void printLog(const char* message) {
+#ifdef CEPHALOPOD_DEBUG
     std::stringstream ss;
     ss << "(thread " << std::this_thread::get_id() << ") " << message;
     cephalopod_log::LogUtil::getLogUtil().info(ss.str());
+#endif
 }
 
 std::string globalGetUUID() {
