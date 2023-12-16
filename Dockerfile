@@ -2,7 +2,9 @@ FROM alpine:3.16 AS build_images
 
 COPY . /opt/
 WORKDIR /opt/
+
 ENV CXXFLAGS "-DCEPHALOPOD_NO_IPV6_SUPPORT"
+ENV LDFLAGS "-static"
 
 RUN apk add -U -v --no-cache --no-progress g++ gcc make && make
 
