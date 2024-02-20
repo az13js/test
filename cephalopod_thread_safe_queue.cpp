@@ -16,4 +16,18 @@ namespace cephalopod_thread_safe_queue {
         return result;
     }
 
+    void LongQueue::push(long s) {
+        std::unique_lock<std::mutex> lock(mt);
+        longQueue.push(s);
+        cv.notify_one();
+    }
+
+    long LongQueue::frontAndPop() {
+        std::unique_lock<std::mutex> lock(mt);
+        cv.wait(lock, [this]() { return !longQueue.empty(); });
+        long result = longQueue.front();
+        longQueue.pop();
+        return result;
+    }
+
 } // namespace cephalopod_thread_safe_queue

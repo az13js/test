@@ -21,7 +21,7 @@ public:
     virtual void doRecv(std::string& data, cephalopod_pipe::PortState& control);
     virtual void doSend(const std::string& data, cephalopod_pipe::PortState& control);
     virtual void close();
-    virtual std::string getFileName(unsigned long id);
+    virtual std::string getFileName();
 protected:
     cephalopod_black_hole::Connect* connect = nullptr;
 private:

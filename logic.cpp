@@ -91,8 +91,8 @@ void NetworkConnection::close() {
     printLog(std::string("NetworkConnection::close, connect=") + std::to_string((unsigned long)connect));
 }
 
-std::string NetworkConnection::getFileName(unsigned long id) {
-    return std::string("cache/") + uuid + "-" + std::to_string(id);
+std::string NetworkConnection::getFileName() {
+    return std::string("cache/") + uuid;
 }
 
 void TransmissionNetworkConnection::recv(std::string& data, cephalopod_pipe::PortState& control) {
