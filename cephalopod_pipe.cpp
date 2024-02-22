@@ -71,6 +71,7 @@ namespace cephalopod_pipe {
                             pSend->send(fileData, s);
                         }
                     } while (fileData != "");
+                    file.close();
                     pSend->close();
                     filesystem::remove(filesystem::path(fileName));
                 };
