@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <thread>
+#include <system_error>
 #include "cephalopod_host_to_ip.h"
 
 //#include "logic.h"
@@ -271,7 +272,7 @@ void BlackHole::doAcceptAndLoop(const std::function<void(Connect&)>& userCallbac
     } catch (const std::string& e) {
         closeFileDescriptor();
         throw e;
-    } catch (const std::system_error e) {
+    } catch (const std::system_error& e) {
         closeFileDescriptor();
         throw std::string("Create thread fail");
     }
